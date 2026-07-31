@@ -1,0 +1,393 @@
+:root {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --line: #e4e4e7;
+  --fg: #18181b;
+  --fg-muted: #71717a;
+  --accent: #1d4ed8;
+  --accent-fg: #ffffff;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Any class that sets `display` outrules the browser's own [hidden] rule, and a
+   full-screen overlay that is invisible but still laid out swallows every click
+   on the page. Enforced globally so new components inherit the fix. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.banner {
+  background: var(--fg);
+  color: #fafafa;
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 68px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--fg);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.brand strong {
+  display: block;
+  font-size: 15px;
+}
+
+.brand em {
+  display: block;
+  font-style: normal;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.cart-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  background: var(--surface);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 40px;
+  align-items: start;
+  padding-top: 36px;
+  padding-bottom: 56px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+
+.lede {
+  margin: 0 0 22px;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  background: #ececf0;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card .art {
+  font-size: 30px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.card .name {
+  font-weight: 600;
+}
+
+.card .blurb {
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.card .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.card .price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 8px 14px;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.primary {
+  width: 100%;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 500;
+}
+
+.primary:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.secondary {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--fg);
+}
+
+.secondary:hover {
+  background: #f4f4f5;
+}
+
+.cart {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: sticky;
+  top: 24px;
+}
+
+.cart-lines {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cart-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.cart-lines .qty {
+  color: var(--fg-muted);
+}
+
+.cart-lines .empty {
+  justify-content: flex-start;
+}
+
+.field {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.field span {
+  display: block;
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-bottom: 6px;
+}
+
+.field select {
+  width: 100%;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.totals {
+  margin: 0 0 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.totals > div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.totals dt,
+.totals dd {
+  margin: 0;
+}
+
+.totals dt {
+  color: var(--fg-muted);
+}
+
+.totals dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.totals .grand {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.totals .grand dt {
+  color: var(--fg);
+}
+
+.muted {
+  color: var(--fg-muted);
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+
+.confirmation {
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 24, 27, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.confirmation-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 36px 40px;
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+}
+
+.confirmation-card .check {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: var(--success);
+  font-size: 20px;
+}
+
+.confirmation-card h2 {
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.confirmation-card p {
+  color: var(--fg-muted);
+  font-size: 14px;
+  margin: 0 0 22px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 32px;
+  font-size: 12px;
+}
+
+.status::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  margin-right: 7px;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.status-pending {
+  color: var(--fg-muted);
+}
+
+.status-ready {
+  color: var(--success);
+}
+
+.status-error {
+  color: var(--danger);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cart {
+    position: static;
+  }
+}

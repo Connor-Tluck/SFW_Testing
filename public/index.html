@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Northwind Supply</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <div id="banner" class="banner" hidden></div>
+
+    <header class="header">
+      <div class="wrap header-inner">
+        <div class="brand">
+          <span class="brand-mark">NS</span>
+          <span>
+            <strong>Northwind Supply</strong>
+            <em>Demo storefront</em>
+          </span>
+        </div>
+        <div class="cart-pill" id="cart-pill">Cart: 0 items</div>
+      </div>
+    </header>
+
+    <main class="wrap layout">
+      <section>
+        <h1>Shop</h1>
+        <p class="lede">Everything is priced in whole cents and totalled by <code>src/checkout.js</code>.</p>
+        <div id="products" class="grid" aria-busy="true">
+          <p class="muted">Loading products…</p>
+        </div>
+      </section>
+
+      <aside class="cart" aria-label="Cart">
+        <h2>Your cart</h2>
+        <ul id="cart-lines" class="cart-lines">
+          <li class="muted empty">Nothing here yet.</li>
+        </ul>
+
+        <label class="field">
+          <span>Ship to</span>
+          <select id="region">
+            <option value="CA">California</option>
+            <option value="NY">New York</option>
+            <option value="TX">Texas</option>
+          </select>
+        </label>
+
+        <dl class="totals" id="totals" hidden>
+          <div><dt>Subtotal</dt><dd id="t-subtotal">$0.00</dd></div>
+          <div><dt>Tax</dt><dd id="t-tax">$0.00</dd></div>
+          <div><dt>Shipping</dt><dd id="t-shipping">$0.00</dd></div>
+          <div class="grand"><dt>Total</dt><dd id="t-total">$0.00</dd></div>
+        </dl>
+
+        <button id="checkout" class="primary" disabled>Checkout</button>
+        <p id="cart-error" class="error" hidden></p>
+      </aside>
+    </main>
+
+    <div id="confirmation" class="confirmation" hidden>
+      <div class="confirmation-card">
+        <span class="check">✓</span>
+        <h2>Order confirmed</h2>
+        <p>Order <strong id="order-id"></strong> — <span id="order-total"></span></p>
+        <button id="keep-shopping" class="secondary">Keep shopping</button>
+      </div>
+    </div>
+
+    <footer class="footer wrap">
+      <span id="ld-status" class="status status-pending">LaunchDarkly: connecting…</span>
+      <span class="muted">Built by the Software Factory</span>
+    </footer>
+
+    <script src="/vendor/ldclient.min.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

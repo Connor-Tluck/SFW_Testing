@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sandbox repository for Software Factory runs.",
+  "description": "Northwind Supply — demo storefront built and released by the Software Factory.",
   "scripts": {
+    "start": "node src/server.js",
     "test": "node --test"
   }
 }
