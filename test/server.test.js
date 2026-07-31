@@ -47,6 +47,39 @@ test("checkout totals a cart", async () => {
   assert.ok(order.orderId);
 });
 
+test("checkout applies the SAVE10 promo code", async () => {
+  const response = await post("/api/checkout", {
+    items: [{ sku: "mug", quantity: 2 }],
+    region: "NY",
+    promoCode: "save10",
+  });
+  assert.equal(response.status, 200);
+  const order = await response.json();
+  assert.equal(order.promoCode, "SAVE10");
+  assert.equal(order.subtotalCents, 2400);
+  assert.equal(order.discountCents, 240);
+  assert.equal(order.taxCents, 86);
+  assert.equal(order.shippingCents, 599);
+  assert.equal(order.totalCents, 2400 - 240 + 86 + 599);
+});
+
+test("checkout rejects an unknown promo code", async () => {
+  const response = await post("/api/checkout", {
+    items: [{ sku: "mug", quantity: 1 }],
+    region: "NY",
+    promoCode: "SAVE99",
+  });
+  assert.equal(response.status, 400);
+  assert.match((await response.json()).error, /Invalid promo code/);
+});
+
+test("checkout without a promo code reports zero discount", async () => {
+  const response = await post("/api/checkout", { items: [{ sku: "mug", quantity: 1 }], region: "NY" });
+  const order = await response.json();
+  assert.equal(order.discountCents, 0);
+  assert.equal(order.promoCode, null);
+});
+
 test("checkout rejects a bad cart with 400 rather than throwing", async () => {
   const response = await post("/api/checkout", { items: [], region: "NY" });
   assert.equal(response.status, 400);

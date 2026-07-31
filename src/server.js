@@ -82,12 +82,14 @@ export async function handleRequest(req, res) {
     try {
       const body = await readJsonBody(req);
       const items = priceCart(body.items);
-      const order = total({ items, region: body.region });
+      const order = total({ items, region: body.region, promoCode: body.promoCode });
       return sendJson(res, 200, {
         orderId: randomUUID().slice(0, 8).toUpperCase(),
         items,
         region: body.region,
+        promoCode: order.discountCents > 0 ? String(body.promoCode).trim().toUpperCase() : null,
         subtotalCents: order.subtotalCents,
+        discountCents: order.discountCents,
         taxCents: order.taxCents,
         shippingCents: order.shippingCents,
         totalCents: order.totalCents,

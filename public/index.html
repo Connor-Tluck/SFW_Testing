@@ -47,8 +47,15 @@
           </select>
         </label>
 
+        <label class="field">
+          <span>Promo code</span>
+          <input id="promo" type="text" placeholder="e.g. SAVE10" autocomplete="off" />
+        </label>
+        <p id="promo-error" class="error" hidden></p>
+
         <dl class="totals" id="totals" hidden>
           <div><dt>Subtotal</dt><dd id="t-subtotal">$0.00</dd></div>
+          <div id="discount-line" hidden><dt id="t-discount-label">Discount</dt><dd id="t-discount" class="discount">−$0.00</dd></div>
           <div><dt>Tax</dt><dd id="t-tax">$0.00</dd></div>
           <div><dt>Shipping</dt><dd id="t-shipping">$0.00</dd></div>
           <div class="grand"><dt>Total</dt><dd id="t-total">$0.00</dd></div>

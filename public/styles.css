@@ -253,7 +253,8 @@ button:disabled {
   margin-bottom: 6px;
 }
 
-.field select {
+.field select,
+.field input {
   width: 100%;
   font: inherit;
   padding: 8px 10px;
@@ -261,6 +262,10 @@ button:disabled {
   border-radius: 8px;
   background: var(--surface);
   color: var(--fg);
+}
+
+.totals .discount {
+  color: var(--success);
 }
 
 .totals {

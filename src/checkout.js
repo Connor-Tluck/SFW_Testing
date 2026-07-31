@@ -11,8 +11,22 @@ const TAX_RATES = {
   TX: 0.0625,
 };
 
+// Promo codes map to a fractional discount off the subtotal.
+const PROMO_CODES = {
+  SAVE10: 0.1,
+};
+
 export function subtotal(items) {
   return items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
+}
+
+export function discountFor(subtotalCents, promoCode) {
+  if (promoCode === undefined || promoCode === null) return 0;
+  const code = String(promoCode).trim().toUpperCase();
+  if (code === "") return 0;
+  const rate = PROMO_CODES[code];
+  if (rate === undefined) throw new Error(`Invalid promo code: ${code}`);
+  return Math.round(subtotalCents * rate);
 }
 
 export function taxFor(subtotalCents, region) {
@@ -26,14 +40,19 @@ export function shippingFor(subtotalCents) {
   return subtotalCents >= 5000 ? 0 : 599;
 }
 
-export function total({ items, region }) {
+export function total({ items, region, promoCode }) {
   const goods = subtotal(items);
+  const discount = discountFor(goods, promoCode);
+  // Tax and the free-shipping threshold apply to what the customer actually
+  // pays for goods, i.e. the subtotal after any promo discount.
+  const discounted = goods - discount;
   return {
     subtotalCents: goods,
-    taxCents: taxFor(goods, region),
-    shippingCents: shippingFor(goods),
+    discountCents: discount,
+    taxCents: taxFor(discounted, region),
+    shippingCents: shippingFor(discounted),
     get totalCents() {
-      return this.subtotalCents + this.taxCents + this.shippingCents;
+      return this.subtotalCents - this.discountCents + this.taxCents + this.shippingCents;
     },
   };
 }
