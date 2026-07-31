@@ -63,6 +63,23 @@ test("checkout applies the SAVE10 promo code", async () => {
   assert.equal(order.totalCents, 2400 - 240 + 86 + 599);
 });
 
+test("checkout applies the FREESHIP promo code", async () => {
+  const response = await post("/api/checkout", {
+    items: [{ sku: "mug", quantity: 2 }],
+    region: "NY",
+    promoCode: "freeship",
+  });
+  assert.equal(response.status, 200);
+  const order = await response.json();
+  assert.equal(order.promoCode, "FREESHIP");
+  assert.equal(order.freeShipping, true);
+  assert.equal(order.subtotalCents, 2400);
+  assert.equal(order.discountCents, 0);
+  assert.equal(order.taxCents, 96);
+  assert.equal(order.shippingCents, 0);
+  assert.equal(order.totalCents, 2400 + 96);
+});
+
 test("checkout rejects an unknown promo code", async () => {
   const response = await post("/api/checkout", {
     items: [{ sku: "mug", quantity: 1 }],

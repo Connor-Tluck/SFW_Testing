@@ -11,22 +11,35 @@ const TAX_RATES = {
   TX: 0.0625,
 };
 
-// Promo codes map to a fractional discount off the subtotal.
+// Promo codes either take a fractional discount off the subtotal or waive
+// shipping — never both.
 const PROMO_CODES = {
-  SAVE10: 0.1,
+  SAVE10: { discountRate: 0.1 },
+  FREESHIP: { freeShipping: true },
 };
+
+/**
+ * Normalize a promo code and look it up. Returns null when no code was given,
+ * throws on an unknown code, and otherwise returns the promo with its
+ * canonical code attached.
+ */
+export function promoFor(promoCode) {
+  if (promoCode === undefined || promoCode === null) return null;
+  const code = String(promoCode).trim().toUpperCase();
+  if (code === "") return null;
+  const promo = PROMO_CODES[code];
+  if (promo === undefined) throw new Error(`Invalid promo code: ${code}`);
+  return { code, ...promo };
+}
 
 export function subtotal(items) {
   return items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
 }
 
 export function discountFor(subtotalCents, promoCode) {
-  if (promoCode === undefined || promoCode === null) return 0;
-  const code = String(promoCode).trim().toUpperCase();
-  if (code === "") return 0;
-  const rate = PROMO_CODES[code];
-  if (rate === undefined) throw new Error(`Invalid promo code: ${code}`);
-  return Math.round(subtotalCents * rate);
+  const promo = promoFor(promoCode);
+  if (!promo?.discountRate) return 0;
+  return Math.round(subtotalCents * promo.discountRate);
 }
 
 export function taxFor(subtotalCents, region) {
@@ -35,22 +48,26 @@ export function taxFor(subtotalCents, region) {
   return Math.round(subtotalCents * rate);
 }
 
-export function shippingFor(subtotalCents) {
+export function shippingFor(subtotalCents, promoCode) {
   if (subtotalCents === 0) return 0;
+  if (promoFor(promoCode)?.freeShipping) return 0;
   return subtotalCents >= 5000 ? 0 : 599;
 }
 
 export function total({ items, region, promoCode }) {
+  const promo = promoFor(promoCode);
   const goods = subtotal(items);
   const discount = discountFor(goods, promoCode);
   // Tax and the free-shipping threshold apply to what the customer actually
   // pays for goods, i.e. the subtotal after any promo discount.
   const discounted = goods - discount;
   return {
+    promoCode: promo?.code ?? null,
+    freeShipping: Boolean(promo?.freeShipping),
     subtotalCents: goods,
     discountCents: discount,
     taxCents: taxFor(discounted, region),
-    shippingCents: shippingFor(discounted),
+    shippingCents: shippingFor(discounted, promoCode),
     get totalCents() {
       return this.subtotalCents - this.discountCents + this.taxCents + this.shippingCents;
     },

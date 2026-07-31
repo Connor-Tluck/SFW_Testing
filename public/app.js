@@ -43,6 +43,18 @@ function applyFlags() {
   const text = ld.variation("store-announcement-banner", "");
   banner.textContent = text;
   banner.hidden = !text;
+
+  // enable-promo-code: v1 shows the promo code field; control hides it.
+  const promoEnabled = ld.variation("enable-promo-code", "control") === "v1";
+  const promoField = document.getElementById("promo-field");
+  if (promoField) {
+    promoField.hidden = !promoEnabled;
+    if (!promoEnabled) {
+      // Clear any stale input and error when the flag is off.
+      document.getElementById("promo").value = "";
+      document.getElementById("promo-error").hidden = true;
+    }
+  }
 }
 
 async function initLaunchDarkly() {
@@ -97,7 +109,10 @@ function renderCart() {
   if (count === 0) {
     lines.innerHTML = '<li class="muted empty">Nothing here yet.</li>';
     document.getElementById("totals").hidden = true;
-    document.getElementById("promo-error").hidden = true;
+    // Only clear the promo error when the promo feature is active.
+    if (ld && ld.variation("enable-promo-code", "control") === "v1") {
+      document.getElementById("promo-error").hidden = true;
+    }
     return;
   }
 
@@ -132,8 +147,11 @@ async function renderTotals() {
     }
 
     document.getElementById("t-tax").textContent = money(order.taxCents);
-    document.getElementById("t-shipping").textContent =
-      order.shippingCents === 0 ? "Free" : money(order.shippingCents);
+    document.getElementById("t-shipping").textContent = order.freeShipping
+      ? "Free shipping applied"
+      : order.shippingCents === 0
+        ? "Free"
+        : money(order.shippingCents);
     document.getElementById("t-total").textContent = money(order.totalCents);
     totals.hidden = false;
     promoError.hidden = true;
@@ -144,6 +162,10 @@ async function renderTotals() {
     if (/promo code/i.test(failure.message)) {
       promoError.textContent = failure.message;
       promoError.hidden = false;
+      // Guarded-release metric: an invalid promo rejected by the server.
+      // Emitting on the promo-error path lets the release detect if users
+      // are hitting promo errors at an elevated rate in the treatment arm.
+      track("enable-promo-code-error");
     } else {
       promoError.hidden = true;
     }
@@ -165,10 +187,11 @@ function addToCart(product) {
 }
 
 function cartPayload() {
+  const promoEnabled = ld && ld.variation("enable-promo-code", "control") === "v1";
   return {
     items: [...cart.values()].map((line) => ({ sku: line.sku, quantity: line.quantity })),
     region: document.getElementById("region").value,
-    promoCode: document.getElementById("promo").value.trim(),
+    ...(promoEnabled ? { promoCode: document.getElementById("promo").value.trim() } : {}),
   };
 }
 
@@ -199,12 +222,22 @@ async function checkout() {
       { orderId: order.orderId, region: order.region, promoCode: order.promoCode },
       order.totalCents,
     );
+    // Guarded-release metric: fire when a promo code was successfully redeemed
+    // (i.e. the order carried a recognised promo — discount or free shipping).
+    // Emitted on both treatment (real promo input) and control (never fires,
+    // no promoCode in payload) so the release can compare redemption rates.
+    if (order.promoCode) {
+      track("enable-promo-code-applied", { promoCode: order.promoCode });
+    }
     document.getElementById("order-id").textContent = order.orderId;
     document.getElementById("order-total").textContent = money(order.totalCents);
     document.getElementById("confirmation").hidden = false;
     cart.clear();
-    document.getElementById("promo").value = "";
-    document.getElementById("promo-error").hidden = true;
+    // Clear promo field only when the promo feature is active.
+    if (ld && ld.variation("enable-promo-code", "control") === "v1") {
+      document.getElementById("promo").value = "";
+      document.getElementById("promo-error").hidden = true;
+    }
     renderCart();
   } catch (failure) {
     track("checkout-failed", { reason: failure.message });
