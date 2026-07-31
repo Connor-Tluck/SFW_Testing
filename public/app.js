@@ -97,6 +97,7 @@ function renderCart() {
   if (count === 0) {
     lines.innerHTML = '<li class="muted empty">Nothing here yet.</li>';
     document.getElementById("totals").hidden = true;
+    document.getElementById("promo-error").hidden = true;
     return;
   }
 
@@ -116,16 +117,36 @@ function renderCart() {
  */
 async function renderTotals() {
   const totals = document.getElementById("totals");
+  const promoError = document.getElementById("promo-error");
   try {
     const order = await priceOrder();
     document.getElementById("t-subtotal").textContent = money(order.subtotalCents);
+
+    const discountLine = document.getElementById("discount-line");
+    if (order.discountCents > 0) {
+      document.getElementById("t-discount-label").textContent = `Discount (${order.promoCode})`;
+      document.getElementById("t-discount").textContent = `−${money(order.discountCents)}`;
+      discountLine.hidden = false;
+    } else {
+      discountLine.hidden = true;
+    }
+
     document.getElementById("t-tax").textContent = money(order.taxCents);
     document.getElementById("t-shipping").textContent =
       order.shippingCents === 0 ? "Free" : money(order.shippingCents);
     document.getElementById("t-total").textContent = money(order.totalCents);
     totals.hidden = false;
-  } catch {
+    promoError.hidden = true;
+  } catch (failure) {
     totals.hidden = true;
+    // Surface promo problems next to the promo field; anything else just
+    // hides the totals as before.
+    if (/promo code/i.test(failure.message)) {
+      promoError.textContent = failure.message;
+      promoError.hidden = false;
+    } else {
+      promoError.hidden = true;
+    }
   }
 }
 
@@ -147,6 +168,7 @@ function cartPayload() {
   return {
     items: [...cart.values()].map((line) => ({ sku: line.sku, quantity: line.quantity })),
     region: document.getElementById("region").value,
+    promoCode: document.getElementById("promo").value.trim(),
   };
 }
 
@@ -172,11 +194,17 @@ async function checkout() {
     const order = await priceOrder();
     // The order value rides along as the metric value, so revenue-shaped metrics
     // can be built off the same event as conversion.
-    track("checkout-completed", { orderId: order.orderId, region: order.region }, order.totalCents);
+    track(
+      "checkout-completed",
+      { orderId: order.orderId, region: order.region, promoCode: order.promoCode },
+      order.totalCents,
+    );
     document.getElementById("order-id").textContent = order.orderId;
     document.getElementById("order-total").textContent = money(order.totalCents);
     document.getElementById("confirmation").hidden = false;
     cart.clear();
+    document.getElementById("promo").value = "";
+    document.getElementById("promo-error").hidden = true;
     renderCart();
   } catch (failure) {
     track("checkout-failed", { reason: failure.message });
@@ -192,6 +220,7 @@ async function checkout() {
 
 document.getElementById("checkout").addEventListener("click", checkout);
 document.getElementById("region").addEventListener("change", renderCart);
+document.getElementById("promo").addEventListener("change", renderCart);
 document.getElementById("keep-shopping").addEventListener("click", () => {
   document.getElementById("confirmation").hidden = true;
 });
