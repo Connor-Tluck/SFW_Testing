@@ -52,6 +52,33 @@ test("no promo code means no discount", () => {
 
 test("unknown promo codes are rejected", () => {
   assert.throws(() => discountFor(4800, "SAVE99"), /Invalid promo code/);
+  assert.throws(() => shippingFor(4800, "SAVE99"), /Invalid promo code/);
+});
+
+test("FREESHIP waives shipping without discounting the subtotal", () => {
+  assert.equal(discountFor(4800, "FREESHIP"), 0);
+  assert.equal(shippingFor(4800, "FREESHIP"), 0);
+});
+
+test("FREESHIP is case-insensitive and whitespace-tolerant", () => {
+  assert.equal(shippingFor(4800, "  freeship "), 0);
+});
+
+test("total with FREESHIP keeps the full subtotal and taxes it undiscounted", () => {
+  const result = total({ items, region: "NY", promoCode: "FREESHIP" });
+  assert.equal(result.subtotalCents, 4800);
+  assert.equal(result.discountCents, 0);
+  // Tax applies to the full subtotal — FREESHIP does not discount goods.
+  assert.equal(result.taxCents, 192);
+  assert.equal(result.shippingCents, 0);
+  assert.equal(result.freeShipping, true);
+  assert.equal(result.totalCents, 4800 + 192);
+});
+
+test("total reports when free shipping was applied", () => {
+  assert.equal(total({ items, region: "NY" }).freeShipping, false);
+  assert.equal(total({ items, region: "NY", promoCode: "SAVE10" }).freeShipping, false);
+  assert.equal(total({ items, region: "NY", promoCode: "FREESHIP" }).freeShipping, true);
 });
 
 test("total applies the promo discount before tax and shipping", () => {

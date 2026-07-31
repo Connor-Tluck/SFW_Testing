@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.2",
+  "flagKey": "enable-promo-code",
+  "scope": "fullstack",
+  "releasePlan": {
+    "notes": "Flag gates the promo code input field (UI) and promoCode passthrough in cartPayload (client). Server-side checkout.js handles undefined promoCode safely (returns null discount), so the control path is preserved without any server-side flag check. The promo-field label starts hidden in HTML; applyFlags() shows it when the flag serves v1.",
+    "metricKeys": [
+      "enable-promo-code-error",
+      "enable-promo-code-conversion",
+      "enable-promo-code-applied"
+    ],
+    "randomizationUnit": "user"
+  },
+  "releaseIntent": {
+    "_instructions": "Human approver: edit freely. action: auto (release on deploy) | hold (do not release yet) | manual (a human runs the release). Structured fields execute; anything else goes in notes (an agent will structure it on the PR for your review). Blank fields = default auto-release on deploy. prerequisites: [{\"flagKey\": \"flag-xyz\", \"variation\": \"on\"}]. notBefore: YYYY-MM-DD. reference: ticket/doc URL.",
+    "action": "auto",
+    "notBefore": "",
+    "segments": [],
+    "prerequisites": [],
+    "releaseWith": [],
+    "reference": "",
+    "approvedBy": "",
+    "notes": ""
+  }
+}
