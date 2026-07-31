@@ -1,0 +1,10 @@
+{
+  "name": "sfw-testing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sandbox repository for Software Factory runs.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
