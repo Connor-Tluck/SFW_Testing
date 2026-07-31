@@ -26,14 +26,24 @@ export function shippingFor(subtotalCents) {
   return subtotalCents >= 5000 ? 0 : 599;
 }
 
-export function total({ items, region }) {
+export function discountFor(subtotalCents, percent) {
+  if (percent < 0 || percent > 100) {
+    throw new Error(`Discount percent must be between 0 and 100: ${percent}`);
+  }
+  return Math.round((subtotalCents * percent) / 100);
+}
+
+export function total({ items, region, discountPercent = 0 }) {
   const goods = subtotal(items);
+  const discount = discountFor(goods, discountPercent);
+  const discounted = goods - discount;
   return {
     subtotalCents: goods,
-    taxCents: taxFor(goods, region),
-    shippingCents: shippingFor(goods),
+    discountCents: discount,
+    taxCents: taxFor(discounted, region),
+    shippingCents: shippingFor(discounted),
     get totalCents() {
-      return this.subtotalCents + this.taxCents + this.shippingCents;
+      return this.subtotalCents - this.discountCents + this.taxCents + this.shippingCents;
     },
   };
 }
